@@ -253,6 +253,7 @@ public class VueGrilleJeux extends Application {
     }
 
     public Jeu getJeu() {
+        System.out.println("dhdhdh");
         return this.game;
     }
 
