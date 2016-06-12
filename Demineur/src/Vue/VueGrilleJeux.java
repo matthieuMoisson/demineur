@@ -3,6 +3,7 @@ package Vue;
 import Controleur.ControlleurBtmSmilley;
 import Controleur.ControleurCaseGrille;
 import Controleur.ControleurDifficulte;
+import Controleur.ControleurDifficultePersonalise;
 
 import Modele.Grille;
 import javafx.application.Application;
@@ -11,7 +12,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.Slider;
 
 import javafx.scene.image.Image;
 
@@ -24,19 +24,15 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import jdk.nashorn.internal.ir.Block;
 
-/**
- *
- * @author freder
- */
 public class VueGrilleJeux extends Application {
 
     // affiche la saisie et le résultat
     Text score;
 
     static Jeu game;
-   
-
+    
     // initialisation du modèle que l'on souhaite utiliser
     Image drapeau = new Image("img/drapeau.png");
     Image bomb_rouge = new Image("img/bomb_rouge.png");
@@ -64,7 +60,19 @@ public class VueGrilleJeux extends Application {
 
         // gestion du placement (permet de palcer le champ Text affichage en haut, et GridPane gPane au centre)
         BorderPane border = new BorderPane();
+        
+        border.setTop(menuBar(primaryStage));        
 
+        border.setBottom(bottomPane(primaryStage));
+        border.setCenter(grillePane(primaryStage));
+        Scene scene = new Scene(border, Color.GAINSBORO);
+
+        primaryStage.setTitle("Démineur");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+    
+    public MenuBar menuBar(Stage primaryStage){
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("Difficulté");
         ControleurDifficulte facilControleur = new ControleurDifficulte(primaryStage, this, 0, "Débutant");
@@ -74,13 +82,15 @@ public class VueGrilleJeux extends Application {
 
         fileMenu.getItems().setAll(facilControleur.getMenuItem(), moyenControleur.getMenuItem(), difficileControleur.getMenuItem(), difficulteAvance);
         ControleurDifficulte personalierControleur = new ControleurDifficulte(primaryStage, this, 3, "Personaliser  : longueur*hauteur*mine");
-        Slider sliderLongueur = new Slider(0, 40, 20);
-        Slider sliderHauteur = new Slider(0, 25, 20);
-        Slider sliderMine = new Slider(0, 1000, 75);
+
+        ControleurDifficultePersonalise  spinnerLongueur;
+        spinnerLongueur = new ControleurDifficultePersonalise(primaryStage, this, 0, 45, game.getlNext(),0);
+        ControleurDifficultePersonalise  spinnerHauteur = new ControleurDifficultePersonalise(primaryStage, this,0, 20, game.gethNext(), 1);
+        ControleurDifficultePersonalise  spinnerMine = new ControleurDifficultePersonalise(primaryStage, this,0, 800, game.getNbMineNext(), 2);
         
-        CustomMenuItem cmiLongueur = new CustomMenuItem(sliderLongueur);
-        CustomMenuItem cmiHauteur = new CustomMenuItem(sliderHauteur);
-        CustomMenuItem cmiMine = new CustomMenuItem(sliderMine);
+        CustomMenuItem cmiLongueur = new CustomMenuItem(spinnerLongueur.getSpinner());
+        CustomMenuItem cmiHauteur = new CustomMenuItem(spinnerHauteur.getSpinner());
+        CustomMenuItem cmiMine = new CustomMenuItem(spinnerMine.getSpinner());
         cmiLongueur.setHideOnClick(false);
         cmiHauteur.setHideOnClick(false);
         cmiMine.setHideOnClick(false);
@@ -90,14 +100,14 @@ public class VueGrilleJeux extends Application {
         Menu editMenu = new Menu("Affichage");
         Menu helpMenu = new Menu("Aide");
         menuBar.getMenus().setAll(fileMenu, editMenu, helpMenu);
-        border.setTop(menuBar);
-
+        return menuBar;
+    }
+    
+    public GridPane grillePane(Stage primaryStage){
         // permet de placer les diffrents boutons dans une grille
         GridPane gPane = new GridPane();
-
         Grille g = game.getG();
         // création des bouton et placement dans la grille
-
         for (int y = 0; y < g.getHauteur(); y++) {
             for (int x = 0; x < g.getLongueur(); x++) {
                 final Text t;
@@ -165,14 +175,17 @@ public class VueGrilleJeux extends Application {
                 }
             }
         }
-
+        gPane.setGridLinesVisible(true);
+        return gPane;
+    }
+    
+    public BorderPane bottomPane(Stage primaryStage){
         BorderPane bottomPane = new BorderPane();
         ControlleurBtmSmilley c = new ControlleurBtmSmilley(primaryStage, this);
         c.setWidth(40);
         c.setHeight(40);
         bottomPane.setCenter(c);
-
-        if (g.partieGagne())//Si la partie est gagné
+        if (game.getG().partieGagne())//Si la partie est gagné
         {
             c.setFill(new ImagePattern(smileyGagner));
         } else if (game.getPartiePerdu())// Si la partie est perdu
@@ -183,7 +196,7 @@ public class VueGrilleJeux extends Application {
         }
 
         Text t;
-        t = new Text("" + g.getScore());
+        t = new Text("" + game.getG().getScore());
         t.setFont(Font.font("Verdana", 20));
         t.setTextAlignment(TextAlignment.CENTER);
         bottomPane.setLeft(t);
@@ -192,17 +205,7 @@ public class VueGrilleJeux extends Application {
         t.setFont(Font.font("Verdana", 20));
         t.setTextAlignment(TextAlignment.RIGHT);
         bottomPane.setRight(t);
-
-        gPane.setGridLinesVisible(true);
-
-        border.setBottom(bottomPane);
-        border.setCenter(gPane);
-
-        Scene scene = new Scene(border, Color.GAINSBORO);
-
-        primaryStage.setTitle("Démineur");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        return bottomPane;
     }
 
     public ControleurCaseGrille affichageNumero(int i, int j, Stage s, Grille g) {
@@ -242,6 +245,19 @@ public class VueGrilleJeux extends Application {
 
     }
 
+    public Jeu getJeu() {
+        return this.game;
+    }
+    
+    public void restart() {
+        game.restartJeu();
+    }
+
+    public Jeu newJeu() {
+        game = new Jeu(game.getlNext(), game.gethNext(), game.getNbMineNext());
+        return game;
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -251,19 +267,6 @@ public class VueGrilleJeux extends Application {
         launch(args);
 
     }
-
-    public Jeu getJeu() {
-        System.out.println("dhdhdh");
-        return this.game;
-    }
-
-    public void restart() {
-        game.restartJeu();
-    }
-
-    public Jeu newJeu(int l, int h, int nbMine) {
-        game = new Jeu(l, h, nbMine);
-        return game;
-    }
+    
 
 }

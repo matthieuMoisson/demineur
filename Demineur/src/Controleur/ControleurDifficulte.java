@@ -33,16 +33,25 @@ public class ControleurDifficulte extends Rectangle {
         item.setOnAction((ActionEvent actonEvent) -> {
             switch (difficulte) {
                 case 0:
-                    f.newJeu(9,9,10);
+                    f.getJeu().setlNext(9);
+                    f.getJeu().sethNext(9);
+                    f.getJeu().setNbMineNext(10);
+                    f.newJeu();
                     break;
                 case 1:
-                    f.newJeu(16,16,40);
+                    f.getJeu().setlNext(16);
+                    f.getJeu().sethNext(16);
+                    f.getJeu().setNbMineNext(40);
+                    f.newJeu();
                     break;
                 case 2:
-                    f.newJeu(30,16,100);
+                    f.getJeu().setlNext(30);
+                    f.getJeu().sethNext(16);
+                    f.getJeu().setNbMineNext(100);
+                    f.newJeu();
                     break;
                 case 3:
-                    
+                    f.newJeu();
                     break;
                 default:
                     break;
