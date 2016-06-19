@@ -1,24 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Modele;
 
-import javafx.scene.layout.StackPane;
 
-/**
- *
- * @author p1212374
- */
-public class Case 
+public class CaseCarre 
 {
     private boolean etat; // True-Case dévoilée False-Case non dévoilée
     private int valeurBouton; // 0-Rien 1-Drapeau 2-Point d'intérrogation 3-Bombe car mauvais Point d'intérrogation 
     private int valeur; // -1 si c'est une mine
     private int x, y;
     
-    public Case(int x, int y, int val)
+    public CaseCarre(int x, int y, int val)
     {
         etat = false;
         valeurBouton = 0;

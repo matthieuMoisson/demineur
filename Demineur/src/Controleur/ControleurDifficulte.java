@@ -1,5 +1,6 @@
 package Controleur;
 
+import Modele.Jeu;
 import Vue.VueGrilleJeux;
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuItem;
@@ -19,39 +20,31 @@ public class ControleurDifficulte extends Rectangle {
     //Expert = 30*16*100
     
     int l, h, nbMine; // Pour la difficulté personalisé
-
+    Jeu jeu;
     
     
-    public ControleurDifficulte(Stage s, VueGrilleJeux f, int d, String nom) {
+    public ControleurDifficulte(Stage s, VueGrilleJeux f, Jeu jeu, int d, String nom) {
 
         this.st = s;
-        this.fenetre = f;
         this.difficulte=d;
         this.nom = nom;
+        this.jeu = jeu;
+        this.fenetre = f;
         
         this.item = new MenuItem(nom);
         item.setOnAction((ActionEvent actonEvent) -> {
             switch (difficulte) {
                 case 0:
-                    f.getJeu().setlNext(9);
-                    f.getJeu().sethNext(9);
-                    f.getJeu().setNbMineNext(10);
-                    f.newJeu();
+                    jeu.changeNiveauJeu(9, 9, 10);
                     break;
                 case 1:
-                    f.getJeu().setlNext(16);
-                    f.getJeu().sethNext(16);
-                    f.getJeu().setNbMineNext(40);
-                    f.newJeu();
+                    jeu.changeNiveauJeu(16, 16, 40);
                     break;
                 case 2:
-                    f.getJeu().setlNext(30);
-                    f.getJeu().sethNext(16);
-                    f.getJeu().setNbMineNext(100);
-                    f.newJeu();
+                    jeu.changeNiveauJeu(30, 16, 100);
                     break;
                 case 3:
-                    f.newJeu();
+                    jeu.changeNiveauJeu(jeu.getlNext(), jeu.gethNext(), jeu.getNbMineNext());
                     break;
                 default:
                     break;

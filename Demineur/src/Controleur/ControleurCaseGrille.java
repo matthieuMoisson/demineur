@@ -1,7 +1,7 @@
 package Controleur;
 
 import Modele.Jeu;
-import Vue.VueGrilleJeux;
+import java.util.concurrent.ExecutorService;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
@@ -12,38 +12,26 @@ public class ControleurCaseGrille extends Rectangle {
     int x;
     int y;
     Stage st;
-    VueGrilleJeux fenetre;
+    private Jeu jeu;
+    private final ExecutorService executor;
 
-    public ControleurCaseGrille(int x, int y, Stage s, VueGrilleJeux f) {
+    public ControleurCaseGrille(int x, int y, Stage s, Jeu j, ExecutorService executor) {
 
         this.x = x;
         this.y = y;
         this.st = s;
-        this.fenetre = f;
+        this.jeu = j;
+        this.executor = executor;
+
         this.setOnMouseClicked((MouseEvent mouseEvent) -> {
-            Jeu m = f.getJeu();
             if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                switch (m.getG().getCase_X_Y(x, y).getValeur_bouton()) {
-                    case 0:
-                        m.MettreDrapeau(x, y);
-                        break;
-                    case 1:
-                        m.MettrePointInterrogation(x, y);
-                        break;
-                    case 2:
-                        m.MettreCaseVide(x, y);
-                        break;
-                    default:
-                        break;
-                }
-                f.start(st);
+                executor.execute(() -> jeu.ClicDroitCase(x, y));
+                //m.ClicDroitCase(x, y);
             } else if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                if (m.getG().getCase_X_Y(x, y).getValeur_bouton() == 0) {
-                    // Il n'est possible de jouer que sur une case vide sans ? ni drapeau
-                    m.ClicCase(x, y);
-                    f.start(st);
-                }
+                executor.execute(() -> jeu.ClicGaucheCase(x, y));
             }
+            if(!jeu.dejaClique())
+                executor.execute(() -> jeu.tempDeJeu());
         });
     }
 

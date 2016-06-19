@@ -1,37 +1,21 @@
 package Modele;
 
-/**
- *
- * @author p1212374
- */
-public class Grille {
+public class GrilleCaseCarre {
 
-    private Case[][] tabCases;
+    private CaseCarre[][] tabCases;
     // Notre tableau est de longueur (horizontal = x), hauteur (vertical = y)
     private int longueur;
     private int hauteur;
     private final int nbMines; // Nombre de mine total sur la grille initialiser au début ne change pas durant la partie
 
-    public void afficheGrille(){
-        for (int y = 0; y < hauteur; y++) {
-            for (int x = 0; x < longueur; x++) {
-                if(tabCases[x][y].getValeur()==-1){
-                    System.out.print("  ");
-                }
-                else{
-                    System.out.print(" "+tabCases[x][y].getValeur());
-                }
-                    
-                
-            }
-            System.out.println("");
-        }
-    }
-    
-    public Grille(int longueur, int hauteur, int nbMines) {
+    public GrilleCaseCarre(int longueur, int hauteur, int nbMines) {
         this.longueur = longueur;
         this.hauteur = hauteur;
-        this.nbMines = nbMines;
+        if (nbMines > longueur * hauteur) {
+            this.nbMines = (int) (longueur * hauteur * 0.2);
+        } else {
+            this.nbMines = nbMines;
+        }
         initGrilleVide();
         poserMinesGrille();
         genererNbGrille();
@@ -52,10 +36,10 @@ public class Grille {
      * Pour initialiser la grille de jeu avec des case vide
      */
     public void initGrilleVide() {
-        tabCases = new Case[longueur][hauteur];
+        tabCases = new CaseCarre[longueur][hauteur];
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < longueur; x++) {
-                tabCases[x][y] = new Case(x, y, 0);
+                tabCases[x][y] = new CaseCarre(x, y, 0);
             }
         }
     }
@@ -76,13 +60,12 @@ public class Grille {
             } while (!b);
             tabCases[x][y].setValeur(-1);
         }
-        System.out.println();
     }
 
     public int nbMineVoisins(int x, int y) {
         int conteur = 0;
-        Case[] tabVoisins = getVoisins(tabCases[x][y].getX(), tabCases[x][y].getY());
-        for (Case voisin : tabVoisins) {
+        CaseCarre[] tabVoisins = getVoisins(tabCases[x][y].getX(), tabCases[x][y].getY());
+        for (CaseCarre voisin : tabVoisins) {
             if (voisin.getValeur() == -1) {
                 conteur++;
             }
@@ -92,7 +75,7 @@ public class Grille {
 
     public void genererNbGrille() {
         for (int y = 0; y < hauteur; y++) {
-            for (int x = 0; x < longueur; x++) { 
+            for (int x = 0; x < longueur; x++) {
                 if (tabCases[x][y].getValeur() != -1) {
                     tabCases[x][y].setValeur(nbMineVoisins(x, y));
                 }
@@ -107,10 +90,10 @@ public class Grille {
 
     //Parcour toutes les case adjacente a une case, teste si elle appartienne au tableau. 
     //Si oui l'ajoute a un tableau de case et le renvoie
-    public Case[] getVoisins(int x, int y) {
-        Case[] tab_voisins, tabTmp;
+    public CaseCarre[] getVoisins(int x, int y) {
+        CaseCarre[] tab_voisins, tabTmp;
         int indice = 0;
-        tabTmp = new Case[8];
+        tabTmp = new CaseCarre[8];
         for (int j = y - 1; j <= y + 1; j++) {
             for (int i = x - 1; i <= x + 1; i++) {
                 if (!(i == x && j == y) && estDansTab(i, j)) {
@@ -119,7 +102,7 @@ public class Grille {
                 }
             }
         }
-        tab_voisins = new Case[indice];
+        tab_voisins = new CaseCarre[indice];
         System.arraycopy(tabTmp, 0, tab_voisins, 0, indice);
         return tab_voisins;
     }
@@ -135,19 +118,18 @@ public class Grille {
 
     //Pour devoiler les case a devoiler apres un clique
     public void algoDevoilement(int x, int y) {
-        Case[] voisins = getVoisins(x, y);
-        Case current_case;
-        current_case = tabCases[x][y];
-        if (current_case.getValeur() == 0) {
-            current_case.setEtat(true);
-            for (Case voisin1 : voisins) {
+        CaseCarre[] voisins = getVoisins(x, y);
+        CaseCarre caseCourante;
+        caseCourante = tabCases[x][y];
+        if (caseCourante.getValeur() == 0) { // Si il y a aucune case voisine
+            caseCourante.setEtat(true);
+            for (CaseCarre voisin1 : voisins) {
                 if (!voisin1.getEtat()) {
                     algoDevoilement(voisin1.getX(), voisin1.getY());
                 }
             }
-
-        } else if (current_case.getValeur() != -1 && current_case.getValeur() != 0) {
-            current_case.setEtat(true);
+        } else if (caseCourante.getValeur() != -1) { //Si la case n'est pas une bombe
+            caseCourante.setEtat(true);
         }
     }
 
@@ -171,21 +153,23 @@ public class Grille {
     /**
      * @return the tab_cases
      */
-    public Case[][] getTabCases() {
+    public CaseCarre[][] getTabCases() {
         return tabCases;
     }
 
     /**
+     * @param x
+     * @param y
      * @return the tab_cases
      */
-    public Case getCase_X_Y(int x, int y) {
+    public CaseCarre getCase_X_Y(int x, int y) {
         return this.tabCases[x][y];
     }
 
     /**
      * @param tab_cases the tab_cases to set
      */
-    public void setTabCases(Case[][] tab_cases) {
+    public void setTabCases(CaseCarre[][] tab_cases) {
         this.tabCases = tab_cases;
     }
 
@@ -225,19 +209,20 @@ public class Grille {
     }
 
     public int getScore() {
-        int score=this.nbMines;
+        int score = this.nbMines;
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < longueur; x++) {
-                if(!tabCases[x][y].getEtat()){
-                    if(tabCases[x][y].getValeur_bouton()==1){//Si c'est un drapeau
+                if (!tabCases[x][y].getEtat()) {
+                    if (tabCases[x][y].getValeur_bouton() == 1) {//Si c'est un drapeau
                         score--;
+                    }
                 }
-                }
-                
+
             }
         }
-        if(score < 0)
+        if (score < 0) {
             return 0;
+        }
         return score;
     }
 
